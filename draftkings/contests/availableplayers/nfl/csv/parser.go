@@ -12,17 +12,18 @@ import (
 
 // Parser parses CSV files into a mapping of player to nfl contest player details
 type Parser struct {
-  reader *Reader
-  timeDeserializer *TimeDeserializer
-  salaryDeserializer *SalaryDeserializer
-  playerIDDeserializer *PlayerIDDeserializer
-  playerNameDeserializer *PlayerNameDeserializer
-  contestPositionDeserializer *ContestPositionDeserializer
-  teamDeserializer *TeamDeserializer
+  reader *csv.Reader
+  timeDeserializer *serialization.TimeDeserializer
+  salaryDeserializer *serialization.SalaryDeserializer
+  playerIDDeserializer *serialization.PlayerIDDeserializer
+  playerNameDeserializer *serialization.PlayerNameDeserializer
+  contestPositionsDeserializer *serialization.ContestPositionsDeserializer
+  teamDeserializer *serialization.TeamDeserializer
+  opponentDeserializer *serialization.OpponentDeserializer
 }
 
-func (p Parser) deserialize(*File) (map[Player]NFLContestPlayerDetails, error) {
-  detailsByPlayer := make(map[Player]NFLContestPlayerDetails)
+func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlayerDetails, error) {
+  detailsByPlayer := make(map[models.Player]models.NFLContestPlayerDetails)
 
   header, err := p.reader.Read()
 
@@ -69,6 +70,42 @@ func (p Parser) deserialize(*File) (map[Player]NFLContestPlayerDetails, error) {
     if err != nil {
       return nil, err
     }
+
+    salary, err := p.salaryDeserializer.deserialize(record[5])
+    if err != nil {
+      return nil, err
+    }
+
+    indexByPosition, err := p.contestPositionsDeserializer.deserialize(record[4])
+    if err != nil {
+      return nil, err
+    }
+
+    startTime, err := p.timeDeserializer.deserialize(record[6])
+    if err != nil {
+      return nil, err
+    }
+
+    opponent, err := p.opponentDeserializer.deserialize(record[6])
+    if err != nil {
+      return nil, err
+    }
+
+    elibigilityByPositions := make(map[models.ContestPosition]bool)
+    for contestPosition := range models.ContestPositions {
+      value, exist := indexByPosition[contestPosition]
+      eligibilityByPositions[contestPosition] = exist
+    }
+
+    details := models.NFLContestPlayerDetails{
+      team,
+      opponent,
+      startTime,
+      salary,
+      eligibilityByPositions,
+    }
+
+    detailsByPlayer[player] = details
   }
 
   return detailsByPlayer

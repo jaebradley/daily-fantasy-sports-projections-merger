@@ -7,30 +7,35 @@ import (
 
 // TeamDeserializer deserializes a string into a team
 type TeamDeserializer interface {
-  deserialize(string) (Team, error)
+  deserialize(value string) (*models.Team, error)
 }
 
 // ContestPositionDeserializer deserializes a string into a ContestPosition
 type ContestPositionDeserializer interface {
-  deserialize(string) (ContestPosition, error)
+  deserialize(value string) (*models.ContestPosition, error)
+}
+
+// ContestPositionsDeserializer deserializes a string into multiple ContestPositions
+type ContestPositionsDeserializer interface {
+  deserialize(value string) (map[models.ContestPosition]int, error)
 }
 
 // TimeDeserializer deserializes a string into a time.Time
 type TimeDeserializer interface {
-  deserialize(string) (time.Time, error)
+  deserialize(value string) (*time.Time, error)
 }
 
 // SalaryDeserializer deserializes a string into a salary
 type SalaryDeserializer interface {
-  deserialize(string) (float, error)
+  deserialize(value string) (float, error)
 }
 
 // PlayerIDDeserializer deserializes a string into a Player Id
 type PlayerIDDeserializer interface {
-  deserialize(string) (int, error)
+  deserialize(value string) (int, error)
 }
 
 // PlayerNameDeserializer deserializes a string into a Player Name
 type PlayerNameDeserializer interface {
-  deserialize(string) (string, error)
+  deserialize(value string) (string, error)
 }
