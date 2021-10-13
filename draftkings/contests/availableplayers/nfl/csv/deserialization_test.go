@@ -1,8 +1,10 @@
 package csv
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/models"
 )
@@ -64,5 +66,20 @@ func TestDeserializeContestPositions(t *testing.T) {
 		t.Errorf("expected no errors")
 	} else if !reflect.DeepEqual(expectedIndicesByContestPosition, indicesByContestPosition) {
 		t.Errorf("expected positions to match")
+	}
+}
+
+func TestDeserializeValidContestStartTime(t *testing.T) {
+	easternTimeZone, err := time.LoadLocation("America/New_York")
+	if nil != err {
+		t.Errorf("could not load eastern time zone")
+	}
+	deserializer := ContestStartTimeDeserializer{}
+	startTime, err := deserializer.Deserialize("TEN@JAX 10/10/2021 01:00PM ET")
+	if nil != err {
+		fmt.Println(err)
+		t.Errorf("expected no error")
+	} else if !startTime.Equal(time.Date(2021, 10, 10, 13, 0, 0, 0, easternTimeZone)) {
+		t.Errorf("unexpected time value")
 	}
 }

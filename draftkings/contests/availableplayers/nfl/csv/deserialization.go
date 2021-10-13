@@ -1,8 +1,10 @@
 package csv
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/models"
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/serialization"
@@ -56,4 +58,29 @@ func (d *ContestPositionsDeserializer) Deserialize(value string) (map[models.Con
 		indicesByContestPosition[*position] = index
 	}
 	return indicesByContestPosition, nil
+}
+
+type ContestStartTimeDeserializer struct {
+}
+
+func (d *ContestStartTimeDeserializer) Deserialize(value string) (*time.Time, error) {
+	parts := strings.Split(value, " ")
+	if 4 != len(parts) {
+		return nil, errors.New("expected exactly 4 parts")
+	}
+
+	if "ET" != parts[3] {
+		return nil, errors.New("unexpected time zone")
+	}
+
+	easternTimeZone, err := time.LoadLocation("America/New_York")
+	if nil != err {
+		return nil, errors.New("unable to load Eastern Time Zone")
+	}
+
+	parsedTime, err := time.ParseInLocation("01/02/2006 03:04PM", strings.Join(parts[1:3], " "), easternTimeZone)
+	if nil != err {
+		return nil, err
+	}
+	return &parsedTime, nil
 }
