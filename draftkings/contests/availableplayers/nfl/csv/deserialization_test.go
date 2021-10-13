@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/models"
-	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/serialization"
 )
 
 func TestDeserializeUnknownTeamAbbreviation(t *testing.T) {
@@ -43,7 +42,7 @@ func TestDeserializeKnownContestPosition(t *testing.T) {
 }
 
 func TestDeserializeContestPositions(t *testing.T) {
-	var contestPositionDeserializer serialization.ContestPositionDeserializer = ContestPositionDeserializer{
+	contestPositionDeserializer := ContestPositionDeserializer{
 		positionsByAbbreviation: map[string]models.ContestPosition{
 			"FOO": models.QUARTERBACK,
 			"BAR": models.RUNNINGBACK,
@@ -51,7 +50,7 @@ func TestDeserializeContestPositions(t *testing.T) {
 	}
 
 	deserializer := ContestPositionsDeserializer{
-		contestPositionDeserializer: contestPositionDeserializer,
+		contestPositionDeserializer: &contestPositionDeserializer,
 		separator:                   ',',
 	}
 
