@@ -66,7 +66,7 @@ const (
 
 // Player represents a Player in DraftKings
 type Player struct {
-	Id   int
+	Id   int64
 	Name string
 }
 
@@ -75,6 +75,6 @@ type NFLContestPlayerDetails struct {
 	Team                   *Team
 	Opponent               *Team
 	StartTime              *time.Time
-	Salary                 float32
+	Salary                 float64
 	EligibilityByPositions map[ContestPosition]bool
 }

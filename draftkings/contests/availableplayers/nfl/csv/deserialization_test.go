@@ -83,3 +83,23 @@ func TestDeserializeValidContestStartTime(t *testing.T) {
 		t.Errorf("unexpected time value")
 	}
 }
+
+func TestDeserializeValidSalary(t *testing.T) {
+	deserializer := SalaryDeserializer{}
+	salary, err := deserializer.Deserialize("9000")
+	if nil != err {
+		t.Errorf("expected no error")
+	} else if salary != float64(9000) {
+		t.Errorf("unexpected salary")
+	}
+}
+
+func TestDeserializeValidPlayerId(t *testing.T) {
+	deserializer := PlayerIDDeserializer{}
+	id, err := deserializer.Deserialize("19551612")
+	if nil != err {
+		t.Errorf("expected no error")
+	} else if id != 19551612 {
+		t.Errorf("unexpected id")
+	}
+}

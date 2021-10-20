@@ -28,12 +28,12 @@ type TimeDeserializer interface {
 
 // SalaryDeserializer deserializes a string into a salary
 type SalaryDeserializer interface {
-	Deserialize(value string) (float32, error)
+	Deserialize(value string) (float64, error)
 }
 
 // PlayerIDDeserializer deserializes a string into a Player Id
 type PlayerIDDeserializer interface {
-	Deserialize(value string) (int, error)
+	Deserialize(value string) (int64, error)
 }
 
 // PlayerNameDeserializer deserializes a string into a Player Name

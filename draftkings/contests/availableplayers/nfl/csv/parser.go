@@ -16,7 +16,6 @@ type Parser struct {
 	timeDeserializer             serialization.TimeDeserializer
 	salaryDeserializer           serialization.SalaryDeserializer
 	playerIDDeserializer         serialization.PlayerIDDeserializer
-	playerNameDeserializer       serialization.PlayerNameDeserializer
 	contestPositionsDeserializer serialization.ContestPositionsDeserializer
 	teamDeserializer             serialization.TeamDeserializer
 	opponentDeserializer         serialization.TeamDeserializer
@@ -51,14 +50,9 @@ func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlaye
 			return nil, err
 		}
 
-		playerName, err := p.playerNameDeserializer.Deserialize(record[2])
-		if err != nil {
-			return nil, err
-		}
-
 		player := models.Player{
 			Id:   playerID,
-			Name: playerName,
+			Name: record[2],
 		}
 
 		_, exist := detailsByPlayer[player]

@@ -3,6 +3,7 @@ package csv
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -60,9 +61,11 @@ func (d *ContestPositionsDeserializer) Deserialize(value string) (map[models.Con
 	return indicesByContestPosition, nil
 }
 
+// ContestStartTimeDeserializer deserializer contest start times
 type ContestStartTimeDeserializer struct {
 }
 
+// Deserialize deserializes a string into a time
 func (d *ContestStartTimeDeserializer) Deserialize(value string) (*time.Time, error) {
 	parts := strings.Split(value, " ")
 	if 4 != len(parts) {
@@ -83,4 +86,18 @@ func (d *ContestStartTimeDeserializer) Deserialize(value string) (*time.Time, er
 		return nil, err
 	}
 	return &parsedTime, nil
+}
+
+type SalaryDeserializer struct {
+}
+
+func (d *SalaryDeserializer) Deserialize(value string) (float64, error) {
+	return strconv.ParseFloat(value, 64)
+}
+
+type PlayerIDDeserializer struct {
+}
+
+func (d *PlayerIDDeserializer) Deserialize(value string) (int64, error) {
+	return strconv.ParseInt(value, 10, 63)
 }
