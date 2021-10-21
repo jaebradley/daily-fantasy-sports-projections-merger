@@ -1,10 +1,10 @@
 package csv
 
 import (
+	"bytes"
 	"encoding/csv"
 	"errors"
 	"io"
-	"os"
 
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/models"
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nfl/serialization"
@@ -12,7 +12,6 @@ import (
 
 // Parser parses CSV files into a mapping of player to nfl contest player details
 type Parser struct {
-	reader                       csv.Reader
 	timeDeserializer             serialization.TimeDeserializer
 	salaryDeserializer           serialization.SalaryDeserializer
 	playerIDDeserializer         serialization.PlayerIDDeserializer
@@ -21,10 +20,11 @@ type Parser struct {
 	opponentDeserializer         serialization.TeamDeserializer
 }
 
-func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlayerDetails, error) {
+func (p *Parser) Deserialize(bytes *bytes.Buffer) (map[models.Player]models.NFLContestPlayerDetails, error) {
 	detailsByPlayer := make(map[models.Player]models.NFLContestPlayerDetails)
+	reader := csv.NewReader(bytes)
 
-	_, err := p.reader.Read()
+	_, err := reader.Read()
 
 	if err == io.EOF {
 		return detailsByPlayer, nil
@@ -35,7 +35,7 @@ func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlaye
 	}
 
 	for {
-		record, err := p.reader.Read()
+		record, err := reader.Read()
 
 		if err == io.EOF {
 			return detailsByPlayer, nil
@@ -60,7 +60,7 @@ func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlaye
 			return nil, errors.New("duplicate player found")
 		}
 
-		team, err := p.teamDeserializer.Deserialize(record[8])
+		team, err := p.teamDeserializer.Deserialize(record[7])
 		if err != nil {
 			return nil, err
 		}
@@ -80,11 +80,6 @@ func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlaye
 			return nil, err
 		}
 
-		opponent, err := p.opponentDeserializer.Deserialize(record[6])
-		if err != nil {
-			return nil, err
-		}
-
 		elibigilityByPositions := make(map[models.ContestPosition]bool)
 		for contestPosition := range models.ContestPositions {
 			_, exist := indexByPosition[contestPosition]
@@ -92,8 +87,9 @@ func (p *Parser) deserialize(*os.File) (map[models.Player]models.NFLContestPlaye
 		}
 
 		details := models.NFLContestPlayerDetails{
-			Team:                   team,
-			Opponent:               opponent,
+			Team: team,
+			// TODO:@jaebradley actually parse opponent
+			Opponent:               nil,
 			StartTime:              startTime,
 			Salary:                 salary,
 			EligibilityByPositions: elibigilityByPositions,
