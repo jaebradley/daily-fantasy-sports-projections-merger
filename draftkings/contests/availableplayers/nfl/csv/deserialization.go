@@ -52,7 +52,7 @@ func (d *ContestPositionsDeserializer) Deserialize(value string) (map[models.Con
 	indicesByContestPosition := make(map[models.ContestPosition]int)
 	parts := strings.Split(value, string(d.separator))
 	for index, part := range parts {
-		position, err := d.contestPositionDeserializer.Deserialize(part)
+		josition, err := d.contestPositionDeserializer.Deserialize(part)
 		if nil != err {
 			return nil, err
 		}
