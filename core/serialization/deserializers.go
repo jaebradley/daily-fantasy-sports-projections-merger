@@ -32,5 +32,8 @@ type DefaultProjectionDeserializer struct {
 }
 
 func (d *DefaultProjectionDeserializer) Deserialize(value string) (float64, error) {
+	if "" == value {
+		return 0, nil
+	}
 	return strconv.ParseFloat(value, 64)
 }

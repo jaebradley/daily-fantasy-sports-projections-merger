@@ -1,7 +1,6 @@
 package csv
 
 import (
-	"bytes"
 	"encoding/csv"
 	"errors"
 	"io"
@@ -12,7 +11,7 @@ import (
 
 // Deserializer deserializes a File into a mapping of player to the player's contest details
 type Deserializer interface {
-	Deserialize(bytes *bytes.Buffer) (map[models.Player]float64, error)
+	Deserialize(r io.Reader) (map[models.Player]float64, error)
 }
 
 type Parser struct {
@@ -20,9 +19,9 @@ type Parser struct {
 	ProjectionDeserializer serialization.ProjectionDeserializer
 }
 
-func (p *Parser) Deserialize(bytes *bytes.Buffer) (map[string]float64, error) {
+func (p *Parser) Deserialize(r io.Reader) (map[string]float64, error) {
 	projectionsByPlayer := make(map[string]float64)
-	reader := csv.NewReader(bytes)
+	reader := csv.NewReader(r)
 
 	_, err := reader.Read()
 
