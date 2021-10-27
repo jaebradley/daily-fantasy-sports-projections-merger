@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/csv"
 	"flag"
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -12,14 +12,18 @@ import (
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/core/models"
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/core/serialization"
 	dailyRotoCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/dailyroto/csv"
+	dailyRotoModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/dailyroto/models"
 	dailyrotoSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/dailyroto/serialization"
 	draftKingsCoreModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/core/models"
 	draftKingsCoreSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/core/serialization"
 	draftKingsNbaCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nba/csv"
 	draftKingsNbaModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nba/models"
+	etrCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/entertherun/csv"
 	rotogrindersCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/rotogrinders/csv"
+	rotoGrindersModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/rotogrinders/models"
 	rotogrindersSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/rotogrinders/serialization"
 	saberSimCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/sabersim/csv"
+	saberSimModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/sabersim/models"
 	saberSimSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/sabersim/serialization"
 )
 
@@ -29,24 +33,49 @@ func main() {
 	rotogrindersFilePath := flag.String("rotogrinders", "", "path to RotoGrinders projections downloaded as a CSV file")
 	sabersimFilePath := flag.String("sabersim", "", "path to Sabersim projections downloaded as a CSV file")
 	draftKingsFilePath := flag.String("draftkings", "", "path to DraftKings available players as a CSV file")
+	etrFilePath := flag.String("etr", "", "path to EnterTheRun projections downloaded as a CSV file")
 	flag.Parse()
 
-	if "" == *awesomeoFilePath {
-		os.Exit(255)
-	}
+	draftKingsFile, err := os.Open(*draftKingsFilePath)
+	defer draftKingsFile.Close()
 
-	if "" == *dailyRotoFilePath {
-		os.Exit(255)
-	}
-
-	if "" == *rotogrindersFilePath {
-		os.Exit(255)
+	if nil != err {
+		log.Fatal(err)
 	}
 
 	awesomeoFile, err := os.Open(*awesomeoFilePath)
 	defer awesomeoFile.Close()
+
 	if nil != err {
-		os.Exit(255)
+		log.Fatal(err)
+	}
+
+	dailyRotoFile, err := os.Open(*dailyRotoFilePath)
+	defer dailyRotoFile.Close()
+
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	rotogrindersFile, err := os.Open(*rotogrindersFilePath)
+	defer rotogrindersFile.Close()
+
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	sabersimFile, err := os.Open(*sabersimFilePath)
+	defer sabersimFile.Close()
+
+	if nil != err {
+		log.Fatal(err)
+	}
+
+	etrFile, err := os.Open(*etrFilePath)
+	defer etrFile.Close()
+
+	if nil != err {
+		log.Fatal(err)
 	}
 
 	awesomeoParser := awesomeoCsv.Parser{
@@ -56,14 +85,7 @@ func main() {
 
 	awesomeoProjections, err := awesomeoParser.Deserialize(bufio.NewReader(awesomeoFile))
 	if nil != err {
-		os.Exit(255)
-	}
-
-	dailyRotoFile, err := os.Open(*dailyRotoFilePath)
-	defer dailyRotoFile.Close()
-
-	if nil != err {
-		os.Exit(255)
+		log.Fatal(err)
 	}
 
 	dailyRotoParser := dailyRotoCsv.Parser{
@@ -76,14 +98,7 @@ func main() {
 
 	dailyRotoProjections, err := dailyRotoParser.Deserialize(bufio.NewReader(dailyRotoFile))
 	if nil != err {
-		os.Exit(255)
-	}
-
-	rotogrindersFile, err := os.Open(*rotogrindersFilePath)
-	defer rotogrindersFile.Close()
-
-	if nil != err {
-		os.Exit(255)
+		log.Fatal(err)
 	}
 
 	rotogrindersParser := rotogrindersCsv.Parser{
@@ -96,14 +111,7 @@ func main() {
 
 	rotogrindersProjections, err := rotogrindersParser.Deserialize(bufio.NewReader(rotogrindersFile))
 	if nil != err {
-		os.Exit(255)
-	}
-
-	sabersimFile, err := os.Open(*sabersimFilePath)
-	defer sabersimFile.Close()
-
-	if nil != err {
-		os.Exit(255)
+		log.Fatal(err)
 	}
 
 	saberSimParser := saberSimCsv.Parser{
@@ -116,14 +124,17 @@ func main() {
 
 	saberSimProjections, err := saberSimParser.Deserialize(bufio.NewReader(sabersimFile))
 	if nil != err {
-		os.Exit(255)
+		log.Fatal(err)
 	}
 
-	draftKingsFile, err := os.Open(*draftKingsFilePath)
-	defer draftKingsFile.Close()
+	etrParser := etrCsv.Parser{
+		PlayerNameDeserializer: &serialization.DefaultPlayerNameDeserializer{},
+		ProjectionDeserializer: &serialization.DefaultProjectionDeserializer{},
+	}
 
+	etrProjections, err := etrParser.Deserialize(bufio.NewReader(etrFile))
 	if nil != err {
-		os.Exit(255)
+		log.Fatal(err)
 	}
 
 	draftKingsParser := draftKingsNbaCsv.Parser{
@@ -190,52 +201,27 @@ func main() {
 
 	availableDraftKingsPlayers, err := draftKingsParser.Deserialize(bufio.NewReader(draftKingsFile))
 	if nil != err {
-		fmt.Println(err)
-		os.Exit(255)
+		log.Fatal(err)
 	}
 
-	dailyRotoProjectionsByPlayerName := make(map[string]float64)
-
-	for dailyRotoPlayer, projection := range dailyRotoProjections {
-		dailyRotoProjectionsByPlayerName[dailyRotoPlayer.Name] = projection
+	playerProjectionsBySite := map[models.Site]map[string]float64{
+		models.AWESOMEO:     awesomeoProjections,
+		models.DAILYROTO:    makeDailyRotoProjectionsByPlayerName(dailyRotoProjections),
+		models.ENTERTHERUN:  etrProjections,
+		models.ROTOGRINDERS: makeRotoGrindersProjectionsByPlayerName(rotogrindersProjections),
+		models.SABERSIM:     makeSaberSimProjectionsByPlayerName(saberSimProjections),
 	}
-
-	rotogrindersProjectionsByPlayerName := make(map[string]float64)
-
-	for rotogrindersPlayer, projection := range rotogrindersProjections {
-		rotogrindersProjectionsByPlayerName[rotogrindersPlayer.Name] = projection
-	}
-
-	sabersimProjectionsByPlayerName := make(map[string]float64)
-
-	for sabersimPlayer, projection := range saberSimProjections {
-		sabersimProjectionsByPlayerName[sabersimPlayer.Name] = projection
-	}
-
 	projectionsByPlayer := make(map[draftKingsCoreModels.Player]models.NBAProjectionDetails)
 
 	for player, details := range availableDraftKingsPlayers {
 		projectionsBySite := make(map[models.Site]float64)
-		awesomeoProjection, exist := awesomeoProjections[player.Name]
-		if exist {
-			projectionsBySite[models.AWESOMEO] = awesomeoProjection
-		}
 
-		dailyRotoProjection, exist := dailyRotoProjectionsByPlayerName[player.Name]
-		if exist {
-			projectionsBySite[models.DAILYROTO] = dailyRotoProjection
+		for site, playerProjections := range playerProjectionsBySite {
+			projection, exists := playerProjections[player.Name]
+			if exists {
+				projectionsBySite[site] = projection
+			}
 		}
-
-		rotogrindersProjection, exist := rotogrindersProjectionsByPlayerName[player.Name]
-		if exist {
-			projectionsBySite[models.ROTOGRINDERS] = rotogrindersProjection
-		}
-
-		sabersimProjection, exist := sabersimProjectionsByPlayerName[player.Name]
-		if exist {
-			projectionsBySite[models.SABERSIM] = sabersimProjection
-		}
-
 		projectionsByPlayer[player] = models.NBAProjectionDetails{
 			PlayerDetails:     details,
 			ProjectionsBySite: projectionsBySite,
@@ -244,44 +230,67 @@ func main() {
 
 	file, err := os.Create("combined.csv")
 	if nil != err {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
+
+	header := []string{"DraftKings Player ID", "Name", "Salary", "Awesomeo", "DailyRoto", "RotoGrinders", "SaberSim", "EnterTheRun"}
+	writer.Write(header)
+
 	for player, details := range projectionsByPlayer {
-		r := make([]string, 0, 7)
+		r := make([]string, 0, 8)
 		r = append(r, strconv.FormatInt(player.Id, 10))
 		r = append(r, player.Name)
 		r = append(r, strconv.FormatFloat(details.PlayerDetails.Salary, 'f', -1, 64))
+		r = appendSiteProjection(models.AWESOMEO, details.ProjectionsBySite, r)
+		r = appendSiteProjection(models.DAILYROTO, details.ProjectionsBySite, r)
+		r = appendSiteProjection(models.ROTOGRINDERS, details.ProjectionsBySite, r)
+		r = appendSiteProjection(models.ENTERTHERUN, details.ProjectionsBySite, r)
 
-		awesomeoProjection, exist := details.ProjectionsBySite[models.AWESOMEO]
-		if false == exist {
-			awesomeoProjection = 0
-		}
-		r = append(r, strconv.FormatFloat(awesomeoProjection, 'f', -1, 64))
-
-		dailyRotoProjection, exist := details.ProjectionsBySite[models.DAILYROTO]
-		if false == exist {
-			dailyRotoProjection = 0
-		}
-		r = append(r, strconv.FormatFloat(dailyRotoProjection, 'f', -1, 64))
-
-		rotogrindersProjection, exist := details.ProjectionsBySite[models.ROTOGRINDERS]
-		if false == exist {
-			rotogrindersProjection = 0
-		}
-		r = append(r, strconv.FormatFloat(rotogrindersProjection, 'f', -1, 64))
-
-		sabersimProjection, exist := details.ProjectionsBySite[models.SABERSIM]
-		if false == exist {
-			sabersimProjection = 0
-		}
-		r = append(r, strconv.FormatFloat(sabersimProjection, 'f', -1, 64))
 		err := writer.Write(r)
 		if nil != err {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 	}
+}
+
+func makeDailyRotoProjectionsByPlayerName(projectionsByPlayer map[dailyRotoModels.Player]float64) map[string]float64 {
+	projectionsByName := make(map[string]float64)
+
+	for player, projection := range projectionsByPlayer {
+		projectionsByName[player.Name] = projection
+	}
+
+	return projectionsByName
+}
+
+func makeRotoGrindersProjectionsByPlayerName(projectionsByPlayer map[rotoGrindersModels.Player]float64) map[string]float64 {
+	projectionsByName := make(map[string]float64)
+
+	for player, projection := range projectionsByPlayer {
+		projectionsByName[player.Name] = projection
+	}
+
+	return projectionsByName
+}
+
+func makeSaberSimProjectionsByPlayerName(projectionsByPlayer map[saberSimModels.Player]float64) map[string]float64 {
+	projectionsByName := make(map[string]float64)
+
+	for player, projection := range projectionsByPlayer {
+		projectionsByName[player.Name] = projection
+	}
+
+	return projectionsByName
+}
+
+func appendSiteProjection(site models.Site, projectionsBySite map[models.Site]float64, record []string) []string {
+	projection, exist := projectionsBySite[site]
+	if false == exist {
+		projection = 0
+	}
+	return append(record, strconv.FormatFloat(projection, 'f', -1, 64))
 }

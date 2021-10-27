@@ -9,6 +9,7 @@ type Site string
 const (
 	AWESOMEO     Site = "Awesomeo"
 	DAILYROTO         = "DailyRoto"
+	ENTERTHERUN       = "EnterTheRun"
 	ROTOGRINDERS      = "RotoGrinders"
 	SABERSIM          = "SaberSim"
 )
