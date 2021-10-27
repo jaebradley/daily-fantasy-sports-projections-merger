@@ -30,8 +30,36 @@ var ContestPositions = map[ContestPosition]int{
 type Team string
 
 const (
-	ATLANTAHAWKS     Team = "Atlanta Hawks"
-	PHILADELPHA76ERS      = "Philadelphia 76ers"
+	ATLANTAHAWKS          Team = "Atlanta Hawks"
+	BOSTONCELTICS              = "Boston Celtics"
+	BROOKLYNNETS               = "Brooklyn Nets"
+	CHARLOTTEHORNETS           = "Charlotte Hornets"
+	CHICAGOBULLS               = "Chicago Bulls"
+	CLEVELANDCAVALIERS         = "Cleveland Cavaliers"
+	DALLASMAVERICKS            = "Dallas Mavericks"
+	DENVERNUGGETS              = "Denver Nuggets"
+	DETROITPISTONS             = "Detroit Pistons"
+	GOLDENSTATEWARRIORS        = "Golden State Warriors"
+	HOUSTONROCKETS             = "Houston Rockets"
+	INDIANAPACERS              = "Indiana Pacers"
+	LOSANGELESCLIPPERS         = "Los Angeles Clippers"
+	LOSANGELESLAKERS           = "Los Angeles Lakers"
+	MEMPHISGRIZZLIES           = "Memphis Grizzlies"
+	MIAMIHEAT                  = "Miami Heat"
+	MILWAUKEEBUCKS             = "Milwaukee Bucks"
+	MINNESOTATIMBERWOLVES      = "Minnesota Timberwolves"
+	NEWORLEANSPELICANS         = "New Orleans Pelicans"
+	NEWYORKKNICKS              = "New York Knicks"
+	OKLAHOMACITYTHUNDER        = "Oklahoma City Thunder"
+	ORLANDOMAGIC               = "Orlando Magic"
+	PHILADELPHA76ERS           = "Philadelphia 76ers"
+	PHOENIXSUNS                = "Phoenix Suns"
+	PORTLANDTRAILBLAZERS       = "Portland Trail Blazers"
+	SACRAMENTOKINGS            = "Sacramento Kings"
+	SANANTONIOSPURS            = "San Antonio Spurs"
+	TORONTORAPTORS             = "Toronto Raptors"
+	UTAHJAZZ                   = "Utah Jazz"
+	WASHINGTONWIZARDS          = "Washington Wizards"
 )
 
 // NBAContestPlayerDetails represents details about a player that is eligible for an NBA contest

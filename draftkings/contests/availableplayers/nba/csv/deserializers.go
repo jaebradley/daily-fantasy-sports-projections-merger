@@ -10,12 +10,12 @@ import (
 
 // TeamAbbreviationDeserializer deserializes abbreviations to team
 type TeamAbbreviationDeserializer struct {
-	teamsByAbbreviation map[string]models.Team
+	TeamsByAbbreviation map[string]models.Team
 }
 
 // Deserialize team abbreviations
 func (d *TeamAbbreviationDeserializer) Deserialize(abbreviation string) (*models.Team, error) {
-	team, exist := d.teamsByAbbreviation[abbreviation]
+	team, exist := d.TeamsByAbbreviation[abbreviation]
 	if exist {
 		return &team, nil
 	}

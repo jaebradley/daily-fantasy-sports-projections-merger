@@ -1,7 +1,6 @@
 package csv
 
 import (
-	"bytes"
 	"encoding/csv"
 	"errors"
 	"io"
@@ -23,9 +22,9 @@ type Parser struct {
 }
 
 // Deserialize deserializes bytes to a mapping of contest details to a player
-func (p *Parser) Deserialize(bytes *bytes.Buffer) (map[coreModels.Player]nbaModels.NBAContestPlayerDetails, error) {
+func (p *Parser) Deserialize(r io.Reader) (map[coreModels.Player]nbaModels.NBAContestPlayerDetails, error) {
 	detailsByPlayer := make(map[coreModels.Player]nbaModels.NBAContestPlayerDetails)
-	reader := csv.NewReader(bytes)
+	reader := csv.NewReader(r)
 
 	_, err := reader.Read()
 

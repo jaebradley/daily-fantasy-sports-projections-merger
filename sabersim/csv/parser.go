@@ -1,28 +1,28 @@
 package csv
 
 import (
-	"bytes"
 	"encoding/csv"
 	"errors"
 	"io"
 
+	"github.com/jaebradley/daily-fantasy-sports-projections-merger/core/serialization"
 	"github.com/jaebradley/daily-fantasy-sports-projections-merger/sabersim/models"
-	"github.com/jaebradley/daily-fantasy-sports-projections-merger/sabersim/serialization"
+	saberSimSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/sabersim/serialization"
 )
 
 // Deserializer deserializes a File into a mapping of player to the player's contest details
 type Deserializer interface {
-	Deserialize(bytes *bytes.Buffer) (map[models.Player]float64, error)
+	Deserialize(r io.Reader) (map[models.Player]float64, error)
 }
 
 type Parser struct {
-	PlayerDeserializer     serialization.PlayerDeserializer
+	PlayerDeserializer     saberSimSerialization.PlayerDeserializer
 	ProjectionDeserializer serialization.ProjectionDeserializer
 }
 
-func (p *Parser) Deserialize(bytes *bytes.Buffer) (map[models.Player]float64, error) {
+func (p *Parser) Deserialize(r io.Reader) (map[models.Player]float64, error) {
 	projectionsByPlayer := make(map[models.Player]float64)
-	reader := csv.NewReader(bytes)
+	reader := csv.NewReader(r)
 
 	_, err := reader.Read()
 
