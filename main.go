@@ -163,6 +163,7 @@ func main() {
 			TeamsByAbbreviation: map[string]draftKingsNbaModels.Team{
 				"ATL": draftKingsNbaModels.ATLANTAHAWKS,
 				"BOS": draftKingsNbaModels.BOSTONCELTICS,
+				"BKN": draftKingsNbaModels.BROOKLYNNETS,
 				"CHA": draftKingsNbaModels.CHARLOTTEHORNETS,
 				"CHI": draftKingsNbaModels.CHICAGOBULLS,
 				"CLE": draftKingsNbaModels.CLEVELANDCAVALIERS,
@@ -248,6 +249,7 @@ func main() {
 		r = appendSiteProjection(models.AWESOMEO, details.ProjectionsBySite, r)
 		r = appendSiteProjection(models.DAILYROTO, details.ProjectionsBySite, r)
 		r = appendSiteProjection(models.ROTOGRINDERS, details.ProjectionsBySite, r)
+		r = appendSiteProjection(models.SABERSIM, details.ProjectionsBySite, r)
 		r = appendSiteProjection(models.ENTERTHERUN, details.ProjectionsBySite, r)
 
 		err := writer.Write(r)
