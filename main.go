@@ -19,6 +19,7 @@ import (
 	draftKingsCoreSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/core/serialization"
 	draftKingsNbaCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nba/csv"
 	draftKingsNbaModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nba/models"
+	draftKingsNbaSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nba/serialization"
 	etrCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/entertherun/csv"
 	rotogrindersCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/rotogrinders/csv"
 	rotoGrindersModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/rotogrinders/models"
@@ -230,6 +231,8 @@ func main() {
 		}
 	}
 
+	contestPositionsSerializer := draftKingsNbaSerialization.GetDefaultContestPositionsSerializer()
+
 	file, err := os.Create("combined.csv")
 	if nil != err {
 		log.Fatal(err)
@@ -239,7 +242,7 @@ func main() {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	header := []string{"DraftKings Player ID", "Name", "Salary", "Awesomeo", "DailyRoto", "RotoGrinders", "SaberSim", "EnterTheRun"}
+	header := []string{"DraftKings Player ID", "Name", "Salary", "Positions", "Awesomeo", "DailyRoto", "RotoGrinders", "SaberSim", "EnterTheRun"}
 	writer.Write(header)
 
 	for player, details := range projectionsByPlayer {
@@ -247,6 +250,7 @@ func main() {
 		r = append(r, strconv.FormatInt(player.Id, 10))
 		r = append(r, player.Name)
 		r = append(r, strconv.FormatFloat(details.PlayerDetails.Salary, 'f', -1, 64))
+		r = appendPositions(details.PlayerDetails.EligibilityByPositions, contestPositionsSerializer, r)
 		r = appendSiteProjection(models.AWESOMEO, details.ProjectionsBySite, r)
 		r = appendSiteProjection(models.DAILYROTO, details.ProjectionsBySite, r)
 		r = appendSiteProjection(models.ROTOGRINDERS, details.ProjectionsBySite, r)
@@ -298,4 +302,15 @@ func appendSiteProjection(site models.Site, projectionsBySite map[models.Site]fl
 		projection = 0
 	}
 	return append(record, strconv.FormatFloat(projection, 'f', -1, 64))
+}
+
+func appendPositions(eligibilityByPositions map[draftKingsNbaModels.ContestPosition]bool, serializer draftKingsNbaSerialization.ContestPositionsSerializer, record []string) []string {
+	positions := make([]draftKingsNbaModels.ContestPosition, 0)
+	for position, eligibility := range eligibilityByPositions {
+		if eligibility {
+			positions = append(positions, position)
+		}
+	}
+
+	return append(record, serializer.Serialize(positions))
 }
