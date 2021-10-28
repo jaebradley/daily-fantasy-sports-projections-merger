@@ -14,6 +14,7 @@ import (
 	dailyRotoCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/dailyroto/csv"
 	dailyRotoModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/dailyroto/models"
 	dailyrotoSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/dailyroto/serialization"
+	coreDailyRoto "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/core/dailyroto"
 	draftKingsCoreModels "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/core/models"
 	draftKingsCoreSerialization "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/core/serialization"
 	draftKingsNbaCsv "github.com/jaebradley/daily-fantasy-sports-projections-merger/draftkings/contests/availableplayers/nba/csv"
@@ -260,10 +261,12 @@ func main() {
 }
 
 func makeDailyRotoProjectionsByPlayerName(projectionsByPlayer map[dailyRotoModels.Player]float64) map[string]float64 {
+	playerNameTranslator := coreDailyRoto.GetDefaultPlayerNameTranslator()
 	projectionsByName := make(map[string]float64)
 
 	for player, projection := range projectionsByPlayer {
-		projectionsByName[player.Name] = projection
+		name := playerNameTranslator.Translate(player.Name)
+		projectionsByName[name] = projection
 	}
 
 	return projectionsByName
